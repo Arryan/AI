@@ -94,28 +94,31 @@ public class AI {
      * @throws org.json.JSONException
      */
     public char next(JSONArray prevMoves) throws JSONException {
-        String moves[];
-        moves = new String[prevMoves.length()];
-        System.out.print("Mouvements précdents : ");
-        
+        String[] moves = {"", "", "", ""};
         System.out.println(prevMoves.length());
+        System.out.print("IDS : ");
+        
+        
         for (int i = 0; i < prevMoves.length(); i++) {
             JSONObject prevMove = prevMoves.getJSONObject(i);
+            System.out.print(prevMove.getString("id") + " ");
             moves[Integer.parseInt(prevMove.getString("id"))-1] = prevMove.getString("direction");
-            System.out.print(prevMove.getString("direction") + " ");
+            //System.out.print(prevMove.getString("direction") + " ");
         }
         System.out.println("\nwoops " + moves.length);
         for (int i = 0; i < moves.length; i++){
-            if (moves[i].equals("u")){
-                this.coords[i][1]--;
-            } else if (moves[i].equals("d")) {
-                this.coords[i][1]++;
-            } else if (moves[i].equals("r")) {
-               this.coords[i][0]++;
-            } else if (moves[i].equals("l")) {
-                this.coords[i][0]--;
+            if (!moves.equals("")){
+                if (moves[i].equals("u")){
+                    this.coords[i][1]--;
+                } else if (moves[i].equals("d")) {
+                    this.coords[i][1]++;
+                } else if (moves[i].equals("r")) {
+                   this.coords[i][0]++;
+                } else if (moves[i].equals("l")) {
+                    this.coords[i][0]--;
+                }
+                this.board[this.coords[i][0]][this.coords[i][1]] = i+1;
             }
-            this.board[this.coords[i][0]][this.coords[i][1]] = i+1;
         }
         printBoard(this.board);
         System.out.print("\n");
@@ -152,8 +155,8 @@ public class AI {
     private char nextMove(){
         char res = 'u';
         boolean[] possible = {false, false, false, false}; //u l d r
-        int mex = coords[me][0];
-        int mey = coords[me][1];
+        int mex = coords[this.me-1][0];
+        int mey = coords[this.me-1][1];
         int possibleMoves = 0;
         
         //up (-y)
