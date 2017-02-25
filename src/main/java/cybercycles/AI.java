@@ -151,9 +151,58 @@ public class AI {
     
     private char nextMove(){
         char res = 'u';
+        boolean[] possible = {false, false, false, false}; //u l d r
+        int mex = coords[me][0];
+        int mey = coords[me][1];
+        int possibleMoves = 0;
+        
+        //up (-y)
+        if (isPossible(mex, mey-1)){
+            possible[0] = true;
+            possibleMoves++;
+        }
+        //left -x
+        if (isPossible(mex-1, mey)) {
+            possible[1] = true;
+            possibleMoves++;
+        }
+        //down +y
+        if (isPossible(mex, mey + 1)){
+            possible[2] = true;
+            possibleMoves++;
+        }
+        //right +x
+        if (isPossible(mex+1, mey)){
+            possible[3] = true;
+            possibleMoves++;
+        }
+        
+        int choice = 0;
+        if (possibleMoves == 0){
+            System.out.println("no possible moves");
+            res = this.directions[random.nextInt(directions.length)];
+        } else{
+            boolean done = false;
+            while (!done){
+                choice = random.nextInt(directions.length);
+                if (possible[choice]) {
+                    done = true;
+                }    
+            }
+            res = this.directions[choice];
+        }
         
         return res;
     }
     
+    private boolean isPossible(int x, int y){
+        if (x < 0 || y < 0 || x >= width || y >= height) {
+            return false;
+        } else if (board[x][y] == 0){
+            return true;
+        }
+        return false;
+  
+    }
     
 }
