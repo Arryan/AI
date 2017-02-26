@@ -9,7 +9,7 @@ public class AI {
 
     /* Configuration */
     public final String ROOM = "VTC";
-    public final String TEAM = "VTC1";
+    public final String TEAM = "VTC2";
     
     //global game variables
     private int board[][]; //0 blank, 1-4 player x, 5 obstacle
@@ -193,7 +193,7 @@ public class AI {
             possibleMoves++;
         }
         
-        int[] areas = new int[4];
+        int[] areas = new int[] {-1, -1, -1, -1};
         int choice = 0;
         int max = -1;
         System.out.println("have to choose between " + possibleMoves + " moves");
@@ -224,7 +224,18 @@ public class AI {
                     }
                 }
             }
+            
+            //direction
             boolean done = false;
+            for (int i = 0; i < 4; i++){
+                if (areas[i] == max){
+                    if (directions[i] == direction){
+                        choice = i;
+                        done = true;
+                    }
+                }
+            }
+            
             while (!done){
                 System.out.println("choosing random move...");
                 choice = random.nextInt(directions.length);
@@ -245,15 +256,25 @@ public class AI {
         } else if (board[x2][y2] == 0){
             boolean res = true;
 //            for (int i = 0; i < 4; i++){
-//                if (x1 >= 0){
-//                    if (Math.abs(x2 - x1) == 1 && y2 == y1) {
+//                if (coords[i][0] >= 0 && i != this.me-1){
+//                    if (Math.abs(coords[i][0] - x2) == 1 && coords[i][1] == y2) {
+//                        System.out.println();
+//                        System.out.println();
+//                        System.out.println("dodged!");
+//                        System.out.println();
+//                        System.out.println();
 //                        res = false;
-//                    } else if( Math.abs(y2 - y1) == 1 && x2 == x1){
+//                    } else if( Math.abs(coords[i][1] - y2) == 1 && coords[i][0] == x2){
+//                        System.out.println();
+//                        System.out.println();
+//                        System.out.println("dodged!");
+//                        System.out.println();
+//                        System.out.println();
 //                        res = false;
 //                    }
 //                }
-                //return res;
- //           }
+//                return res;
+//            }
             return true;
         }
         return false;
@@ -304,7 +325,7 @@ public class AI {
             if (currentIndex == area + 1){
                 done = true;
             }
-             if (area > 100){
+             if (area > width*height/2){
                  done = true;
              }
         }
