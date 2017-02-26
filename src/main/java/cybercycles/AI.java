@@ -9,7 +9,7 @@ public class AI {
 
     /* Configuration */
     public final String ROOM = "VTC";
-    public final String TEAM = "VTC2";
+    public final String TEAM = "VTC1";
     
     //global game variables
     private int board[][]; //0 blank, 1-4 player x, 5 obstacle
@@ -72,7 +72,7 @@ public class AI {
         }
         
         
-        printBoard(this.board);
+        printBoard();
         
         
         System.out.println("Joueurs : " + config.getJSONArray("players"));
@@ -82,8 +82,7 @@ public class AI {
         System.out.print("Taille de la grille : ");
         System.out.println(config.getInt("w") + " x " + config.getInt("h"));
 
-        System.out.println("Votre identifiant : " + config.getString("me"));    
-        
+        System.out.println("Votre identifiant : " + config.getString("me"));
     }
 
     /**
@@ -119,7 +118,7 @@ public class AI {
                 }
                 int coordx = this.coords[i][0];
                 int coordy = this.coords[i][1];
-                if (coordx > 0 && coordx < width && coordy > 0 && coordy < height){
+                if (coordx >= 0 && coordx < width && coordy >= 0 && coordy < height){
                     this.board[this.coords[i][0]][this.coords[i][1]] = i+1;
                 }
             } else {
@@ -127,7 +126,7 @@ public class AI {
                 this.coords[i][1] = -1;
             }
         }
-        printBoard(this.board);
+        printBoard();
         System.out.print("\n");
 
         direction = this.nextMove();
@@ -146,19 +145,25 @@ public class AI {
     }
     
     
-    private void printBoard(int[][] board){
+    private void printBoard(){
         System.out.println();
         for (int j = 0; j < height; j++){
             for (int i = 0; i < width; i++){
                 if (board[i][j] == 0){
                     System.out.print("-");
                 }else{
+                    if (i == coords[me-1][0] && j == coords[me-1][1]){
+                        System.out.print("*");
+                    } else {
                     System.out.print(board[i][j]);
+                    }
                 }
             }
             System.out.print("\n");
+            
         }
-    }
+        System.out.print("coords of the head: " + coords[me-1][0] + ", " + coords[me-1][1]);
+    } 
     
     private char nextMove(){
         char res = 'u';
@@ -168,22 +173,22 @@ public class AI {
         int possibleMoves = 0;
         
         //up (-y)
-        if (isPossible(mex, mey-1)){
+        if (isPossible(mex, mey, mex, mey-1)){
             possible[0] = true;
             possibleMoves++;
         }
         //left -x
-        if (isPossible(mex-1, mey)) {
+        if (isPossible(mex, mey, mex-1, mey)) {
             possible[1] = true;
             possibleMoves++;
         }
         //down +y
-        if (isPossible(mex, mey + 1)){
+        if (isPossible(mex, mey, mex, mey + 1)){
             possible[2] = true;
             possibleMoves++;
         }
         //right +x
-        if (isPossible(mex+1, mey)){
+        if (isPossible(mex, mey, mex+1, mey)){
             possible[3] = true;
             possibleMoves++;
         }
@@ -191,6 +196,7 @@ public class AI {
         int[] areas = new int[4];
         int choice = 0;
         int max = -1;
+        System.out.println("have to choose between " + possibleMoves + " moves");
         if (possibleMoves == 0){
             System.out.println("no possible moves");
             res = this.directions[random.nextInt(directions.length)];
@@ -220,6 +226,7 @@ public class AI {
             }
             boolean done = false;
             while (!done){
+                System.out.println("choosing random move...");
                 choice = random.nextInt(directions.length);
                 if (areas[choice] == max) {
                     done = true;
@@ -227,25 +234,27 @@ public class AI {
             }
             res = this.directions[choice];
         }
+        System.out.println("I chose to go " + res);
         
         return res;
     }
     
-    private boolean isPossible(int x, int y){
-        if (x < 0 || y < 0 || x >= width || y >= height) {
+    private boolean isPossible(int x1, int y1, int x2, int y2){
+        if (x2 < 0 || y2 < 0 || x2 >= width || y2 >= height) {
             return false;
-        } else if (board[x][y] == 0){
+        } else if (board[x2][y2] == 0){
             boolean res = true;
-            for (int i = 0; i < 4; i++){
-                if (coords[i][0] >= 0){
-                    if (Math.abs(x - coords[i][0]) == 1 && y == coords[i][0]) {
-                        res = false;
-                    } else if( Math.abs(y - coords[i][0]) == 1 && x == coords[i][0]){
-                        res = false;
-                    }
-                }
-                return res;
-            }
+//            for (int i = 0; i < 4; i++){
+//                if (x1 >= 0){
+//                    if (Math.abs(x2 - x1) == 1 && y2 == y1) {
+//                        res = false;
+//                    } else if( Math.abs(y2 - y1) == 1 && x2 == x1){
+//                        res = false;
+//                    }
+//                }
+                //return res;
+ //           }
+            return true;
         }
         return false;
     } 
@@ -257,38 +266,45 @@ public class AI {
         positions = new int[width * height][2];
         positions[0] = new int[]{mex, mey};
         int currentIndex = 0;
-        
         boolean done = false;
         while (!done){
             //if up is possible
-            if (isPossible(mex, mey-1)){
+            //System.out.println("calculating area...");
+    
+            if (isPossible(mex, mey, mex, mey-1) && !spaces[mex][mey-1]){
                 area++;
+                spaces[mex][mey-1] = true;
                 positions[area][0] = mex;
                 positions[area][1] = mey - 1;
             } 
             //if left is possible
-            else  if (isPossible(mex - 1, mey)){
+            if (isPossible(mex, mey, mex - 1, mey) && !spaces[mex-1][mey]){
                 area++;
+                spaces[mex-1][mey] = true;
                 positions[area][0] = mex - 1;
                 positions[area][1] = mey;
             }
             // is down is possible
-            else if (isPossible(mex, mey + 1)){
+            if (isPossible(mex, mey, mex, mey + 1) && !spaces[mex][mey+1]){
                 area++;
+                spaces[mex][mey+1] = true;
                 positions[area][0] = mex;
                 positions[area][1] = mey + 1;
             }
             // is right possible
-            else if (isPossible(mex + 1, mey)){
+            if (isPossible(mex, mey, mex + 1, mey) && !spaces[mex+1][mey]){
                 area++;
+                spaces[mex+1][mey] = true;
                 positions[area][0] = mex + 1;
                 positions[area][1] = mey;
             }
             currentIndex++;
-            if (currentIndex == area){
+            mex = positions[currentIndex][0];
+            mey = positions[currentIndex][1];
+            if (currentIndex == area + 1){
                 done = true;
             }
-             if (area > 20){
+             if (area > 100){
                  done = true;
              }
         }
