@@ -11,6 +11,7 @@ public class AI {
     public final String ROOM = "VTC";
     public final String TEAM = "VTC2";
     
+    
     //global game variables
     private int board[][]; //0 blank, 1-4 player x, 5 obstacle
     private int coords[][]; //0-3 player x -1, x or y coord (x:0, y:1)
@@ -58,7 +59,7 @@ public class AI {
             int y = obstacles.getJSONObject(i).getInt("y");
             int w = obstacles.getJSONObject(i).getInt("w");
             int h = obstacles.getJSONObject(i).getInt("h");
-            System.out.println(x + " " + y + " " + h + " " + w);
+            //System.out.println(x + " " + y + " " + h + " " + w);
             for (int j = x; j < x + w; j++){
                 for (int k = y; k < y + h; k++){
                     if (j < width && j >= 0 && k < height && k >= 0){
@@ -72,17 +73,17 @@ public class AI {
         }
         
         
-        printBoard();
+        //printBoard();
         
         
-        System.out.println("Joueurs : " + config.getJSONArray("players"));
+        //System.out.println("Joueurs : " + config.getJSONArray("players"));
 
-        System.out.println("Obstacles : " + config.getJSONArray("obstacles"));
+        //System.out.println("Obstacles : " + config.getJSONArray("obstacles"));
 
-        System.out.print("Taille de la grille : ");
-        System.out.println(config.getInt("w") + " x " + config.getInt("h"));
+        //System.out.print("Taille de la grille : ");
+        //System.out.println(config.getInt("w") + " x " + config.getInt("h"));
 
-        System.out.println("Votre identifiant : " + config.getString("me"));
+        //System.out.println("Votre identifiant : " + config.getString("me"));
     }
 
     /**
@@ -94,17 +95,15 @@ public class AI {
      */
     public char next(JSONArray prevMoves) throws JSONException {
         String[] moves = {"", "", "", ""};
-        System.out.println(prevMoves.length());
-        System.out.print("IDS : ");
-        
+        //System.out.print("IDS : ");
         
         for (int i = 0; i < prevMoves.length(); i++) {
             JSONObject prevMove = prevMoves.getJSONObject(i);
-            System.out.print(prevMove.getString("id") + " ");
+            //System.out.print(prevMove.getString("id") + " ");
             moves[Integer.parseInt(prevMove.getString("id"))-1] = prevMove.getString("direction");
             //System.out.print(prevMove.getString("direction") + " ");
         }
-        System.out.println("\nwoops " + moves.length);
+        //System.out.println("\nwoops " + moves.length);
         for (int i = 0; i < moves.length; i++){
             if (!moves.equals("")){
                 if (moves[i].equals("u")){
@@ -127,10 +126,10 @@ public class AI {
             }
         }
         //printBoard();
-        System.out.print("\n");
+        //System.out.print("\n");
         direction = this.nextMove();
-        System.out.println("joueur: " + this.me);
-        System.out.println("Mouvement choisi : " + direction);
+        //System.out.println("joueur: " + this.me);
+        //System.out.println("Mouvement choisi : " + direction);
         return direction;
     }
 
@@ -195,9 +194,9 @@ public class AI {
         int[] areas = new int[] {-1, -1, -1, -1};
         int choice = 0;
         int max = -1;
-        System.out.println("have to choose between " + possibleMoves + " moves");
+        //System.out.println("have to choose between " + possibleMoves + " moves");
         if (possibleMoves == 0){
-            System.out.println("no possible moves");
+            //System.out.println("no possible moves");
             res = this.directions[random.nextInt(directions.length)];
         } else{
             
@@ -236,7 +235,7 @@ public class AI {
             }
             
             while (!done){
-                System.out.println("choosing random move...");
+                //System.out.println("choosing random move...");
                 choice = random.nextInt(directions.length);
                 if (areas[choice] == max) {
                     done = true;
@@ -244,8 +243,8 @@ public class AI {
             }
             res = this.directions[choice];
         }
-        System.out.println("I chose to go " + res);
-        System.out.println("max area: " + max);
+        //System.out.println("I chose to go " + res);
+        //System.out.println("max area: " + max);
         
         return res;
     }
@@ -328,9 +327,9 @@ public class AI {
             if (currentIndex == area + 1){
                 done = true;
             }
-             if (area > width*height/2 + 2){
-                 done = true;
-             }
+//             if (area > width*height){
+//                 done = true;
+//             }
         }
         
         return area;
