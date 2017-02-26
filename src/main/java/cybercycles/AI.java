@@ -9,7 +9,7 @@ public class AI {
 
     /* Configuration */
     public final String ROOM = "VTC";
-    public final String TEAM = "VTC1";
+    public final String TEAM = "VTC2";
     
     //global game variables
     private int board[][]; //0 blank, 1-4 player x, 5 obstacle
@@ -117,13 +117,21 @@ public class AI {
                 } else if (moves[i].equals("l")) {
                     this.coords[i][0]--;
                 }
-                this.board[this.coords[i][0]][this.coords[i][1]] = i+1;
+                int coordx = this.coords[i][0];
+                int coordy = this.coords[i][1];
+                if (coordx > 0 && coordx < width && coordy > 0 && coordy < height){
+                    this.board[this.coords[i][0]][this.coords[i][1]] = i+1;
+                }
+            } else {
+                this.coords[i][0] = -1;
+                this.coords[i][1] = -1;
             }
         }
         printBoard(this.board);
         System.out.print("\n");
 
         direction = this.nextMove();
+        System.out.println("joueur: " + this.me);
         System.out.println("Mouvement choisi : " + direction);
         return direction;
     }
@@ -180,15 +188,40 @@ public class AI {
             possibleMoves++;
         }
         
+        int[] areas = new int[4];
         int choice = 0;
+        int max = -1;
         if (possibleMoves == 0){
             System.out.println("no possible moves");
             res = this.directions[random.nextInt(directions.length)];
         } else{
+            
+            int area = 0;
+            for (int i = 0; i < 4; i++){
+                if (possible[i]){
+                    switch (directions[i]) {
+                        case 'u':
+                            areas[i] = calculateArea(mex, mey-1);
+                            break;
+                        case 'l':
+                            areas[i] = calculateArea(mex - 1, mey);
+                            break;
+                        case 'd':
+                            areas[i] = calculateArea(mex, mey+ 1);
+                            break;
+                        case 'r':
+                            areas[i] = calculateArea(mex + 1, mey);
+                            break;
+                    }
+                    if (areas[i] > max) {
+                        max = areas[i];
+                    }
+                }
+            }
             boolean done = false;
             while (!done){
                 choice = random.nextInt(directions.length);
-                if (possible[choice]) {
+                if (areas[choice] == max) {
                     done = true;
                 }    
             }
@@ -202,10 +235,64 @@ public class AI {
         if (x < 0 || y < 0 || x >= width || y >= height) {
             return false;
         } else if (board[x][y] == 0){
-            return true;
+            boolean res = true;
+            for (int i = 0; i < 4; i++){
+                if (coords[i][0] >= 0){
+                    if (Math.abs(x - coords[i][0]) == 1 && y == coords[i][0]) {
+                        res = false;
+                    } else if( Math.abs(y - coords[i][0]) == 1 && x == coords[i][0]){
+                        res = false;
+                    }
+                }
+                return res;
+            }
         }
         return false;
-  
-    }
+    } 
     
+    private int calculateArea(int mex, int mey){
+        int area = 0;
+        boolean[][] spaces = new boolean[width][height];
+        int[][] positions; //nth position, x or y coord
+        positions = new int[width * height][2];
+        positions[0] = new int[]{mex, mey};
+        int currentIndex = 0;
+        
+        boolean done = false;
+        while (!done){
+            //if up is possible
+            if (isPossible(mex, mey-1)){
+                area++;
+                positions[area][0] = mex;
+                positions[area][1] = mey - 1;
+            } 
+            //if left is possible
+            else  if (isPossible(mex - 1, mey)){
+                area++;
+                positions[area][0] = mex - 1;
+                positions[area][1] = mey;
+            }
+            // is down is possible
+            else if (isPossible(mex, mey + 1)){
+                area++;
+                positions[area][0] = mex;
+                positions[area][1] = mey + 1;
+            }
+            // is right possible
+            else if (isPossible(mex + 1, mey)){
+                area++;
+                positions[area][0] = mex + 1;
+                positions[area][1] = mey;
+            }
+            currentIndex++;
+            if (currentIndex == area){
+                done = true;
+            }
+             if (area > 20){
+                 done = true;
+             }
+        }
+        
+        return area;
+    }
 }
