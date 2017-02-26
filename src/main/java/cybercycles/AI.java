@@ -126,9 +126,8 @@ public class AI {
                 this.coords[i][1] = -1;
             }
         }
-        printBoard();
+        //printBoard();
         System.out.print("\n");
-
         direction = this.nextMove();
         System.out.println("joueur: " + this.me);
         System.out.println("Mouvement choisi : " + direction);
@@ -207,16 +206,16 @@ public class AI {
                 if (possible[i]){
                     switch (directions[i]) {
                         case 'u':
-                            areas[i] = calculateArea(mex, mey-1);
+                            areas[i] = calculateArea2(mex, mey-1);
                             break;
                         case 'l':
-                            areas[i] = calculateArea(mex - 1, mey);
+                            areas[i] = calculateArea2(mex - 1, mey);
                             break;
                         case 'd':
-                            areas[i] = calculateArea(mex, mey+ 1);
+                            areas[i] = calculateArea2(mex, mey+ 1);
                             break;
                         case 'r':
-                            areas[i] = calculateArea(mex + 1, mey);
+                            areas[i] = calculateArea2(mex + 1, mey);
                             break;
                     }
                     if (areas[i] > max) {
@@ -241,11 +240,12 @@ public class AI {
                 choice = random.nextInt(directions.length);
                 if (areas[choice] == max) {
                     done = true;
-                }    
+                }
             }
             res = this.directions[choice];
         }
         System.out.println("I chose to go " + res);
+        System.out.println("max area: " + max);
         
         return res;
     }
@@ -255,26 +255,29 @@ public class AI {
             return false;
         } else if (board[x2][y2] == 0){
             boolean res = true;
-//            for (int i = 0; i < 4; i++){
-//                if (coords[i][0] >= 0 && i != this.me-1){
-//                    if (Math.abs(coords[i][0] - x2) == 1 && coords[i][1] == y2) {
-//                        System.out.println();
-//                        System.out.println();
-//                        System.out.println("dodged!");
-//                        System.out.println();
-//                        System.out.println();
-//                        res = false;
-//                    } else if( Math.abs(coords[i][1] - y2) == 1 && coords[i][0] == x2){
-//                        System.out.println();
-//                        System.out.println();
-//                        System.out.println("dodged!");
-//                        System.out.println();
-//                        System.out.println();
-//                        res = false;
-//                    }
-//                }
-//                return res;
-//            }
+            for (int i = 0; i < 4; i++){
+                if (coords[i][0] >= 0 && i != this.me-1){
+                    int otherx = coords[i][0];
+                    int othery = coords[i][1];
+                    //up -y
+                    if (x2 == otherx && y2 == othery - 1){
+                        res = false;
+                    } 
+                    // left -x    
+                    if (x2 == otherx - 1 && y2 == othery){
+                        res = false;
+                    }
+                    // down +y
+                    if (x2 == otherx && y2 == othery + 1) {
+                        res = false;
+                    } 
+                    // right +x
+                    if(x2 == otherx + 1 && y2 == othery){
+                        res = false;
+                   }
+                }
+                return res;
+            }
             return true;
         }
         return false;
@@ -325,11 +328,60 @@ public class AI {
             if (currentIndex == area + 1){
                 done = true;
             }
-             if (area > width*height/2){
+             if (area > width*height/2 + 2){
                  done = true;
              }
         }
         
         return area;
+    }
+    
+    private int calculateArea2(int mex, int mey){
+        int area = -1;
+        int maxArea = -1;
+        if (board[mex][mey] == 0){
+            board[mex][mey] = 6;
+            //up -y
+            if (isPossible(mex, mey, mex, mey - 1)){
+                area = calculateArea(mex, mey-1);
+                if (area > maxArea){
+                    maxArea = area;
+                }
+            }
+            // left -x
+            if (isPossible(mex, mey, mex-1, mey)){
+                area = calculateArea(mex- 1, mey);
+                if (area > maxArea){
+                    maxArea = area;
+                }
+            }
+            // down +y
+            if (isPossible(mex, mey, mex, mey + 1)){
+                area = calculateArea(mex, mey+1);
+                if (area > maxArea){
+                    maxArea = area;
+                }
+            }
+
+            //right + x
+            if (isPossible(mex, mey, mex + 1, mey)){
+                area = calculateArea(mex + 1, mey);
+                if (area > maxArea){
+                    maxArea = area;
+                }
+            }
+            
+            board[mex][mey] = 0;
+        }
+        
+        
+        
+        return maxArea;
+    }
+    
+    private void checkParallel() {
+        int mex = coords[this.me-1][0];
+        int mey = coords[this.me-1][1];
+        
     }
 }
